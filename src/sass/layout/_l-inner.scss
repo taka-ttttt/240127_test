@@ -1,0 +1,13 @@
+@use "global" as *;
+
+.l-inner {
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+  max-width: myrem($inner);
+  @include mq("md") {
+    max-width: 100%;
+    padding-right: myrem($padding-sp);
+    padding-left: myrem($padding-sp);
+  }
+}
