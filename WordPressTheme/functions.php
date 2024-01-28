@@ -179,48 +179,37 @@ function my_excerpt_more( $more ) {
 add_filter( 'excerpt_more', 'my_excerpt_more' );
 
 
-//カスタム投稿追加
-function create_post_types()
+/**
+ * 管理画面の「投稿」に関する表示を「ニュース（任意）」に変更
+ *
+ * 参考：https://wordpress-web.and-ha.com/change-management-screen-post/
+ */
+function change_post_menu_label()
 {
-	$post_types = array(
-		array(
-			'post_type' => 'works',
-			'label' => '実績',
-			'rewrite' => array('slug' => 'works'),
-			'supports' => array('title', 'editor', 'thumbnail'),
-			'taxonomy' => array(
-				'taxonomy_name' => 'workscat',
-				'label' => 'カテゴリー'
-			)
-            )
-	);
-
-	foreach ($post_types as $post_type) {
-		register_post_type($post_type['post_type'], array(
-			'labels' => array(
-				'name' => $post_type['label'],
-				'singular_name' => $post_type['post_type']
-			),
-			'public' => true,
-			'has_archive' => true,
-			'menu_position' => 6,
-			'rewrite' => $post_type['rewrite'],
-			'supports' => $post_type['supports'],
-            'show_in_rest' => true, // Gutenbergサポートを追加
-			'hierarchical' => true
-		));
-
-		register_taxonomy(
-			$post_type['taxonomy']['taxonomy_name'],
-			$post_type['post_type'],
-			array(
-				'hierarchical' => true,
-				'update_count_callback' => '_update_post_term_count',
-				'label' => $post_type['taxonomy']['label'],
-				'public' => true,
-				'show_ui' => true
-			)
-		);
-	}
+	global $menu;
+	global $submenu;
+	$name = 'お知らせ';
+  $menu[5][0] = $name;
+  $submenu['edit.php'][5][0] = $name.'一覧';
+  $submenu['edit.php'][10][0] = '新規'.$name.'投稿';
+	$submenu['edit.php'][16][0] = 'タグ';
 }
-add_action('init', 'create_post_types');
+
+function change_post_object_label()
+{
+	global $wp_post_types;
+	$name = 'お知らせ';
+	$labels = &$wp_post_types['post']->labels;
+  $labels->name = $name;
+  $labels->singular_name = $name;
+  $labels->add_new = _x('追加', $name);
+  $labels->add_new_item = $name.'の新規追加';
+  $labels->edit_item = $name.'の編集';
+  $labels->new_item = '新規'.$name;
+  $labels->view_item = $name.'を表示';
+  $labels->search_items = $name.'を検索';
+  $labels->not_found = $name.'が見つかりませんでした';
+  $labels->not_found_in_trash = 'ゴミ箱に'.$name.'は見つかりませんでした';
+}
+add_action('init', 'change_post_object_label');
+add_action('admin_menu', 'change_post_menu_label');
